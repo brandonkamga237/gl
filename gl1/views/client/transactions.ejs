@@ -1,0 +1,88 @@
+<!-- Solde résumé -->
+<div class="balance-card mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <div class="balance-label mb-1">Solde actuel</div>
+      <div class="balance-amount">
+        <%= parseFloat(balance).toLocaleString('fr-FR') %>
+        <span class="balance-currency">FCFA</span>
+      </div>
+    </div>
+    <div class="text-end opacity-75">
+      <div class="small">Total opérations</div>
+      <div class="fw-bold fs-4"><%= transactions.length %></div>
+    </div>
+  </div>
+</div>
+
+<div class="card-section">
+  <h6 class="fw-bold mb-3">Toutes mes opérations</h6>
+
+  <% if (transactions.length === 0) { %>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+      Aucune opération enregistrée.<br>
+      <a href="/client/deposit" class="text-primary">Effectuer un dépôt</a>
+    </div>
+  <% } else { %>
+
+    <!-- Filtres visuels -->
+    <div class="d-flex gap-2 mb-3 flex-wrap">
+      <button class="btn btn-sm btn-primary rounded-pill" id="btnAll" onclick="filterTx('all')">
+        Toutes (<%= transactions.length %>)
+      </button>
+      <button class="btn btn-sm btn-outline-success rounded-pill" id="btnDep" onclick="filterTx('deposit')">
+        Dépôts (<%= transactions.filter(t => t.type === 'deposit').length %>)
+      </button>
+      <button class="btn btn-sm btn-outline-warning rounded-pill" id="btnWit" onclick="filterTx('withdraw')">
+        Retraits (<%= transactions.filter(t => t.type === 'withdraw').length %>)
+      </button>
+    </div>
+
+    <div id="tx-list">
+      <% transactions.forEach(tx => { %>
+        <div class="tx-item" data-type="<%= tx.type %>">
+          <div class="tx-icon <%= tx.type === 'deposit' ? 'bg-success' : 'bg-warning' %> bg-opacity-10">
+            <i class="bi bi-<%= tx.type === 'deposit' ? 'arrow-down-circle-fill text-success' : 'arrow-up-circle-fill text-warning' %>"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-semibold small">
+              <%= tx.type === 'deposit' ? 'Dépôt' : 'Retrait' %>
+              <% if (tx.description) { %><span class="text-muted"> — <%= tx.description %></span><% } %>
+            </div>
+            <div class="text-muted" style="font-size:0.75rem">
+              <%= new Date(tx.createdAt).toLocaleDateString('fr-FR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'}) %>
+              à <%= new Date(tx.createdAt).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) %>
+            </div>
+          </div>
+          <div class="text-end">
+            <div class="fw-bold <%= tx.type === 'deposit' ? 'text-success' : 'text-danger' %>">
+              <%= tx.type === 'deposit' ? '+' : '-' %><%= parseFloat(tx.amount).toLocaleString('fr-FR') %> FCFA
+            </div>
+            <div class="text-muted" style="font-size:0.7rem">
+              Solde : <%= parseFloat(tx.balanceAfter).toLocaleString('fr-FR') %> FCFA
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+  <% } %>
+</div>
+
+<script>
+function filterTx(type) {
+  const items = document.querySelectorAll('#tx-list .tx-item');
+  items.forEach(item => {
+    item.style.display = (type === 'all' || item.dataset.type === type) ? 'flex' : 'none';
+  });
+  ['btnAll','btnDep','btnWit'].forEach(id => {
+    document.getElementById(id).className = 'btn btn-sm rounded-pill ' +
+      (id === 'btnAll' && type === 'all' ? 'btn-primary' :
+       id === 'btnDep' && type === 'deposit' ? 'btn-success' :
+       id === 'btnWit' && type === 'withdraw' ? 'btn-warning' :
+       id === 'btnAll' ? 'btn-outline-primary' :
+       id === 'btnDep' ? 'btn-outline-success' : 'btn-outline-warning');
+  });
+}
+</script>

@@ -1,0 +1,69 @@
+<div class="row justify-content-center">
+  <div class="col-md-6">
+
+    <% if (success) { %>
+      <div class="alert-banner" style="background:#f0fdf4; border:1px solid #86efac; color:#166534;">
+        <i class="bi bi-check-circle-fill fs-5"></i>
+        <span><%= success %></span>
+      </div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert-banner" style="background:#fef2f2; border:1px solid #fca5a5; color:#991b1b;">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <div class="card-section">
+      <!-- Icône et titre -->
+      <div class="text-center mb-4">
+        <div style="width:64px;height:64px;background:#f0fdf4;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;">
+          <i class="bi bi-arrow-down-circle-fill text-success"></i>
+        </div>
+        <h5 class="fw-bold mb-1">Effectuer un dépôt</h5>
+        <p class="text-muted small">Ajoutez des fonds sur votre compte</p>
+      </div>
+
+      <form method="POST" action="/client/deposit">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Montant à déposer</label>
+          <div class="input-group input-group-lg">
+            <input type="number" name="amount" class="form-control"
+                   placeholder="0" min="100" step="1" required
+                   style="border-radius:10px 0 0 10px; font-size:1.5rem; font-weight:700;" />
+            <span class="input-group-text fw-bold" style="border-radius:0 10px 10px 0; background:#f8fafc;">FCFA</span>
+          </div>
+          <div class="form-text">Montant minimum : 100 FCFA</div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Motif <span class="text-muted fw-normal">(optionnel)</span></label>
+          <input type="text" name="description" class="form-control" placeholder="Ex : Virement salaire, Épargne…" maxlength="100" />
+        </div>
+
+        <!-- Montants rapides -->
+        <div class="mb-4">
+          <p class="small text-muted mb-2">Montants rapides :</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <% [5000, 10000, 25000, 50000, 100000].forEach(v => { %>
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill"
+                      onclick="document.querySelector('[name=amount]').value=<%= v %>">
+                <%= v.toLocaleString('fr-FR') %> FCFA
+              </button>
+            <% }) %>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold" style="border-radius:10px; font-size:1rem;">
+          <i class="bi bi-check-circle me-2"></i>Confirmer le dépôt
+        </button>
+      </form>
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="/client/dashboard" class="text-muted small text-decoration-none">
+        <i class="bi bi-arrow-left me-1"></i>Retour au compte
+      </a>
+    </div>
+  </div>
+</div>

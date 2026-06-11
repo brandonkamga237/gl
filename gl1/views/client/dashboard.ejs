@@ -1,0 +1,78 @@
+<!-- Balance card -->
+<div class="balance-card mb-4">
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <div class="balance-label mb-1">Bonjour, <%= name.split(' ')[0] %></div>
+      <div class="balance-label mb-3">Votre solde disponible</div>
+      <div class="balance-amount">
+        <%= parseFloat(balance).toLocaleString('fr-FR') %>
+        <span class="balance-currency">FCFA</span>
+      </div>
+    </div>
+    <div style="opacity:0.2; font-size:5rem; line-height:1">
+      <i class="bi bi-bank2"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row g-3 mb-4">
+  <div class="col-4">
+    <a href="/client/deposit" class="action-btn">
+      <div class="action-icon bg-success bg-opacity-10">
+        <i class="bi bi-arrow-down-circle-fill text-success"></i>
+      </div>
+      <span class="fw-semibold small">Dépôt</span>
+    </a>
+  </div>
+  <div class="col-4">
+    <a href="/client/withdraw" class="action-btn">
+      <div class="action-icon bg-warning bg-opacity-10">
+        <i class="bi bi-arrow-up-circle-fill text-warning"></i>
+      </div>
+      <span class="fw-semibold small">Retrait</span>
+    </a>
+  </div>
+  <div class="col-4">
+    <a href="/client/transactions" class="action-btn">
+      <div class="action-icon bg-primary bg-opacity-10">
+        <i class="bi bi-clock-history text-primary"></i>
+      </div>
+      <span class="fw-semibold small">Historique</span>
+    </a>
+  </div>
+</div>
+
+<!-- Dernières opérations -->
+<div class="card-section">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold mb-0">Dernières opérations</h6>
+    <a href="/client/transactions" class="text-primary small text-decoration-none">Tout voir →</a>
+  </div>
+
+  <% if (recentTransactions.length === 0) { %>
+    <div class="text-center py-4 text-muted">
+      <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+      Aucune opération pour le moment.<br>
+      <a href="/client/deposit" class="text-primary">Effectuer votre premier dépôt</a>
+    </div>
+  <% } else { %>
+    <% recentTransactions.forEach(tx => { %>
+      <div class="tx-item">
+        <div class="tx-icon <%= tx.type === 'deposit' ? 'bg-success' : 'bg-warning' %> bg-opacity-10">
+          <i class="bi bi-<%= tx.type === 'deposit' ? 'arrow-down-circle-fill text-success' : 'arrow-up-circle-fill text-warning' %>"></i>
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold small"><%= tx.type === 'deposit' ? 'Dépôt' : 'Retrait' %><% if (tx.description) { %> — <%= tx.description %><% } %></div>
+          <div class="text-muted" style="font-size:0.75rem"><%= new Date(tx.createdAt).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) %></div>
+        </div>
+        <div class="text-end">
+          <div class="fw-bold <%= tx.type === 'deposit' ? 'text-success' : 'text-danger' %>">
+            <%= tx.type === 'deposit' ? '+' : '-' %><%= parseFloat(tx.amount).toLocaleString('fr-FR') %>
+          </div>
+          <div class="text-muted" style="font-size:0.7rem">FCFA</div>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>

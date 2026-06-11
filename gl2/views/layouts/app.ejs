@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== 'undefined' ? title + ' · NeoBank' : 'NeoBank' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#080e1c;
+      --surface:#101828;
+      --card:#141e30;
+      --card2:#1a2540;
+      --border:#1f2d45;
+      --accent:#6366f1;
+      --accent2:#818cf8;
+      --accent-glow:rgba(99,102,241,0.25);
+      --green:#10b981;
+      --red:#ef4444;
+      --orange:#f59e0b;
+      --text:#f0f4ff;
+      --text2:#8b9abf;
+      --text3:#4a5680;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+    a{color:inherit;text-decoration:none}
+
+    /* ── Navbar ── */
+    .navbar{
+      background:rgba(8,14,28,0.85);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:200;
+      padding:0 1.5rem;
+      display:flex;align-items:center;justify-content:space-between;
+      height:60px;
+    }
+    .nav-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.15rem;letter-spacing:-0.3px}
+    .nav-brand .brand-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px var(--accent)}
+    .nav-links{display:flex;align-items:center;gap:4px}
+    .nav-links a{
+      padding:6px 14px;border-radius:8px;font-size:0.88rem;font-weight:500;
+      color:var(--text2);transition:all .15s;display:flex;align-items:center;gap:6px;
+    }
+    .nav-links a:hover{color:var(--text);background:var(--card2)}
+    .nav-links a.active{color:var(--accent2);background:rgba(99,102,241,.12)}
+    .nav-links a i{font-size:1rem}
+    .nav-actions{display:flex;align-items:center;gap:8px}
+    .user-chip{
+      display:flex;align-items:center;gap:8px;
+      background:var(--card);border:1px solid var(--border);
+      border-radius:30px;padding:5px 12px 5px 6px;font-size:0.82rem;color:var(--text2);
+    }
+    .user-chip .avatar{
+      width:26px;height:26px;background:linear-gradient(135deg,var(--accent),#a855f7);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:0.72rem;color:#fff;
+    }
+    .btn-logout{
+      background:transparent;border:1px solid var(--border);border-radius:8px;
+      padding:6px 12px;font-size:0.82rem;color:var(--text3);cursor:pointer;
+      transition:all .15s;font-family:'Inter',sans-serif;
+    }
+    .btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+    /* ── Main ── */
+    .main{flex:1;max-width:900px;margin:0 auto;width:100%;padding:2rem 1.5rem}
+
+    /* ── Cards ── */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
+    .card-sm{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem}
+
+    /* ── Balance hero ── */
+    .balance-hero{
+      background:linear-gradient(135deg,#0f1929 0%,#1a1040 50%,#0d1829 100%);
+      border:1px solid var(--border);
+      border-radius:20px;padding:2rem;position:relative;overflow:hidden;
+    }
+    .balance-hero::before{
+      content:'';position:absolute;top:-60px;right:-60px;
+      width:200px;height:200px;
+      background:radial-gradient(circle,rgba(99,102,241,.15),transparent 70%);
+      border-radius:50%;
+    }
+    .balance-label{font-size:0.78rem;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.5rem}
+    .balance-amount{font-size:2.6rem;font-weight:800;letter-spacing:-2px;color:#fff;line-height:1}
+    .balance-currency{font-size:1rem;color:var(--text2);margin-top:.3rem}
+    .account-chip{
+      display:inline-flex;align-items:center;gap:6px;
+      background:rgba(255,255,255,.06);border-radius:8px;
+      padding:5px 10px;font-size:0.78rem;color:var(--text2);margin-top:1rem;
+    }
+
+    /* ── Action buttons ── */
+    .actions-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin:1.5rem 0}
+    .action-btn{
+      background:var(--card);border:1px solid var(--border);
+      border-radius:14px;padding:1rem .75rem;
+      display:flex;flex-direction:column;align-items:center;gap:8px;
+      transition:all .2s;cursor:pointer;color:var(--text2);font-size:.82rem;font-weight:500;
+    }
+    .action-btn:hover{background:var(--card2);border-color:var(--accent);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 20px rgba(99,102,241,.15)}
+    .action-btn .icon{
+      width:44px;height:44px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+    }
+
+    /* ── Transaction list ── */
+    .tx-row{display:flex;align-items:center;gap:12px;padding:.85rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    .tx-row:last-child{border-bottom:none}
+    .tx-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
+    .tx-label{font-size:.88rem;font-weight:500}
+    .tx-sub{font-size:.75rem;color:var(--text3)}
+    .tx-amount{font-weight:700;font-size:.92rem;white-space:nowrap}
+
+    /* ── Form ── */
+    .form-group{margin-bottom:1.2rem}
+    .form-label{display:block;font-size:.82rem;font-weight:600;color:var(--text2);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.5px}
+    .form-input{
+      width:100%;background:var(--surface);border:1px solid var(--border);
+      border-radius:10px;padding:.75rem 1rem;color:var(--text);
+      font-size:1rem;font-family:'Inter',sans-serif;transition:border-color .15s;outline:none;
+    }
+    .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+    .form-input::placeholder{color:var(--text3)}
+    .form-input-lg{font-size:1.6rem;font-weight:700;letter-spacing:-1px;text-align:center}
+    .input-suffix{
+      display:flex;align-items:center;
+      background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;
+    }
+    .input-suffix .form-input{border:none;border-radius:0}
+    .input-suffix span{padding:0 1rem;color:var(--text2);font-weight:600;font-size:.9rem;white-space:nowrap}
+
+    /* ── Buttons ── */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;padding:.7rem 1.4rem;font-weight:600;font-size:.9rem;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:hover{background:#4f46e5;box-shadow:0 4px 20px var(--accent-glow)}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{background:#059669;box-shadow:0 4px 15px rgba(16,185,129,.3)}
+    .btn-orange{background:var(--orange);color:#fff}
+    .btn-orange:hover{background:#d97706}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
+    .btn-outline:hover{border-color:var(--accent);color:var(--text)}
+    .btn-block{width:100%;padding:.85rem}
+    .btn-sm{padding:.45rem .9rem;font-size:.8rem}
+
+    /* ── Quick amounts ── */
+    .quick-amounts{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+    .quick-chip{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:.8rem;color:var(--text2);cursor:pointer;transition:all .15s}
+    .quick-chip:hover{border-color:var(--accent);color:var(--accent2)}
+
+    /* ── Alerts ── */
+    .alert{border-radius:10px;padding:.85rem 1rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.75rem;font-size:.875rem;font-weight:500}
+    .alert-success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#6ee7b7}
+    .alert-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+
+    /* ── Page header ── */
+    .page-header{margin-bottom:1.5rem}
+    .page-header h1{font-size:1.4rem;font-weight:700;letter-spacing:-0.5px}
+    .page-header p{font-size:.875rem;color:var(--text2);margin-top:.3rem}
+
+    /* ── Responsive ── */
+    @media(max-width:600px){
+      .nav-links{display:none}
+      .actions-grid{grid-template-columns:repeat(2,1fr)}
+      .main{padding:1rem}
+      .balance-amount{font-size:2rem}
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="brand-dot"></span>
+    NeoBank
+  </div>
+
+  <% const pg = typeof title !== 'undefined' ? title : ''; %>
+  <div class="nav-links">
+    <a href="/app/dashboard" class="<%= pg==='Accueil'?'active':'' %>">
+      <i class="bi bi-house"></i>Accueil
+    </a>
+    <a href="/app/deposit" class="<%= pg==='Dépôt'?'active':'' %>">
+      <i class="bi bi-arrow-down-circle"></i>Dépôt
+    </a>
+    <a href="/app/withdraw" class="<%= pg==='Retrait'?'active':'' %>">
+      <i class="bi bi-arrow-up-circle"></i>Retrait
+    </a>
+    <a href="/app/transfer" class="<%= pg==='Virement'?'active':'' %>">
+      <i class="bi bi-send"></i>Virement
+    </a>
+    <a href="/app/history" class="<%= pg==='Historique'?'active':'' %>">
+      <i class="bi bi-clock-history"></i>Historique
+    </a>
+  </div>
+
+  <div class="nav-actions">
+    <% if (typeof profile !== 'undefined' && profile) { %>
+      <div class="user-chip">
+        <div class="avatar"><%= profile.name.charAt(0).toUpperCase() %></div>
+        <span><%= profile.name.split(' ')[0] %></span>
+      </div>
+    <% } %>
+    <form action="/logout" method="GET" style="display:inline">
+      <button class="btn-logout" type="submit"><i class="bi bi-box-arrow-right"></i></button>
+    </form>
+  </div>
+</nav>
+
+<main class="main">
+  <%- body %>
+</main>
+</body>
+</html>

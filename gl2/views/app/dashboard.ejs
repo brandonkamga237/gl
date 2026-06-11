@@ -1,0 +1,83 @@
+<!-- Balance hero -->
+<div class="balance-hero" style="margin-bottom:1.5rem">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div class="balance-label">Solde disponible</div>
+      <div class="balance-amount"><%= parseFloat(balance).toLocaleString('fr-FR') %></div>
+      <div class="balance-currency">FCFA</div>
+      <div class="account-chip">
+        <i class="bi bi-credit-card-2-front" style="font-size:.85rem"></i>
+        N° <%= profile.accountNumber %>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Titulaire</div>
+      <div style="font-weight:600;margin-top:.2rem"><%= profile.name %></div>
+      <div style="font-size:.78rem;color:var(--text3);margin-top:.2rem"><%= profile.email %></div>
+    </div>
+  </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="actions-grid">
+  <a href="/app/deposit" class="action-btn">
+    <div class="icon" style="background:rgba(16,185,129,.12)">
+      <i class="bi bi-arrow-down-circle-fill" style="color:var(--green)"></i>
+    </div>
+    Dépôt
+  </a>
+  <a href="/app/withdraw" class="action-btn">
+    <div class="icon" style="background:rgba(245,158,11,.12)">
+      <i class="bi bi-arrow-up-circle-fill" style="color:var(--orange)"></i>
+    </div>
+    Retrait
+  </a>
+  <a href="/app/transfer" class="action-btn">
+    <div class="icon" style="background:rgba(99,102,241,.12)">
+      <i class="bi bi-send-fill" style="color:var(--accent2)"></i>
+    </div>
+    Virement
+  </a>
+  <a href="/app/history" class="action-btn">
+    <div class="icon" style="background:rgba(255,255,255,.06)">
+      <i class="bi bi-clock-history" style="color:var(--text2)"></i>
+    </div>
+    Historique
+  </a>
+</div>
+
+<!-- Dernières opérations -->
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <span style="font-weight:600;font-size:.95rem">Dernières opérations</span>
+    <a href="/app/history" style="font-size:.8rem;color:var(--accent2)">Tout voir →</a>
+  </div>
+
+  <% if (recentTx.length === 0) { %>
+    <div style="text-align:center;padding:2rem 0;color:var(--text3)">
+      <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem"></i>
+      Aucune opération pour l'instant
+    </div>
+  <% } else { %>
+    <% recentTx.forEach(tx => {
+      const isIn = tx.type === 'deposit' || tx.type === 'transfer_in';
+      const icons = { deposit:'arrow-down-circle-fill', withdraw:'arrow-up-circle-fill', transfer_out:'send-fill', transfer_in:'send' };
+      const colors = { deposit:'var(--green)', withdraw:'var(--orange)', transfer_out:'var(--accent2)', transfer_in:'var(--green)' };
+      const labels = { deposit:'Dépôt', withdraw:'Retrait', transfer_out:'Virement émis', transfer_in:'Virement reçu' };
+      const bgs = { deposit:'rgba(16,185,129,.1)', withdraw:'rgba(245,158,11,.1)', transfer_out:'rgba(99,102,241,.1)', transfer_in:'rgba(16,185,129,.1)' };
+    %>
+      <div class="tx-row">
+        <div class="tx-icon" style="background:<%= bgs[tx.type] %>">
+          <i class="bi bi-<%= icons[tx.type] %>" style="color:<%= colors[tx.type] %>"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="tx-label"><%= labels[tx.type] %><% if (tx.description) { %> <span style="color:var(--text3);font-weight:400">— <%= tx.description %></span><% } %></div>
+          <div class="tx-sub"><%= new Date(tx.createdAt).toLocaleDateString('fr-FR', {day:'2-digit',month:'short',year:'numeric'}) %></div>
+        </div>
+        <div class="tx-amount" style="color:<%= isIn?'var(--green)':'var(--orange)' %>">
+          <%= isIn?'+':'-' %><%= parseFloat(tx.amount).toLocaleString('fr-FR') %> <span style="font-size:.75rem;font-weight:400;color:var(--text3)">FCFA</span>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>

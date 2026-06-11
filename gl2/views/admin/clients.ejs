@@ -1,0 +1,78 @@
+<!-- Header row -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+  <div>
+    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px"><%= clients.length %> client<%= clients.length>1?'s':'' %></div>
+  </div>
+  <input type="text" id="search" placeholder="Rechercher..." style="
+    background:#0d1523;border:1px solid #192540;border-radius:8px;
+    padding:.5rem .9rem;color:#e8f0ff;font-size:.85rem;font-family:'Inter',sans-serif;outline:none;width:220px
+  " oninput="filterClients(this.value)" />
+</div>
+
+<% if (typeof flash !== 'undefined' && flash) { %>
+  <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#6ee7b7;display:flex;align-items:center;gap:.5rem">
+    <i class="bi bi-check-circle"></i><%= flash %>
+  </div>
+<% } %>
+
+<div class="card" style="padding:0;overflow:hidden">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>N° Compte</th>
+          <th>Solde</th>
+          <th>Statut</th>
+          <th>Depuis</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="clients-body">
+        <% clients.forEach(c => { %>
+          <tr class="client-row">
+            <td style="font-weight:500">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0">
+                  <%= c.name.charAt(0).toUpperCase() %>
+                </div>
+                <%= c.name %>
+              </div>
+            </td>
+            <td style="color:var(--muted)"><%= c.email %></td>
+            <td style="font-family:monospace;font-size:.85rem"><%= c.accountNumber %></td>
+            <td style="font-weight:600"><%= parseFloat(c.balance).toLocaleString('fr-FR') %> FCFA</td>
+            <td>
+              <span class="badge <%= c.isActive ? 'badge-green' : 'badge-red' %>">
+                <%= c.isActive ? 'Actif' : 'Suspendu' %>
+              </span>
+            </td>
+            <td style="color:var(--muted)"><%= new Date(c.createdAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) %></td>
+            <td>
+              <form method="POST" action="/admin/clients/<%= c.id %>/toggle" style="display:inline">
+                <button type="submit" class="btn-sm btn-toggle">
+                  <i class="bi bi-<%= c.isActive ? 'pause-circle' : 'play-circle' %>"></i>
+                  <%= c.isActive ? 'Suspendre' : 'Réactiver' %>
+                </button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+        <% if (clients.length === 0) { %>
+          <tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--muted)">Aucun client</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function filterClients(q){
+  q = q.toLowerCase();
+  document.querySelectorAll('.client-row').forEach(row=>{
+    const txt = row.textContent.toLowerCase();
+    row.style.display = txt.includes(q) ? '' : 'none';
+  });
+}
+</script>

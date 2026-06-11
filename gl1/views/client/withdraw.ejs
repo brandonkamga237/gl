@@ -1,0 +1,90 @@
+<div class="row justify-content-center">
+  <div class="col-md-6">
+
+    <% if (success) { %>
+      <div class="alert-banner" style="background:#f0fdf4; border:1px solid #86efac; color:#166534;">
+        <i class="bi bi-check-circle-fill fs-5"></i>
+        <span><%= success %></span>
+      </div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert-banner" style="background:#fef2f2; border:1px solid #fca5a5; color:#991b1b;">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <!-- Solde actuel -->
+    <div class="mb-3 p-3 rounded-3 d-flex align-items-center justify-content-between"
+         style="background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;">
+      <div>
+        <div class="small opacity-75">Solde disponible</div>
+        <div class="fw-bold fs-5"><%= parseFloat(balance).toLocaleString('fr-FR') %> FCFA</div>
+      </div>
+      <i class="bi bi-wallet2 fs-2 opacity-25"></i>
+    </div>
+
+    <div class="card-section">
+      <div class="text-center mb-4">
+        <div style="width:64px;height:64px;background:#fffbeb;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem;">
+          <i class="bi bi-arrow-up-circle-fill text-warning"></i>
+        </div>
+        <h5 class="fw-bold mb-1">Effectuer un retrait</h5>
+        <p class="text-muted small">Retirez des fonds de votre compte</p>
+      </div>
+
+      <form method="POST" action="/client/withdraw">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Montant à retirer</label>
+          <div class="input-group input-group-lg">
+            <input type="number" name="amount" class="form-control"
+                   placeholder="0" min="1" max="<%= balance %>" step="1" required
+                   style="border-radius:10px 0 0 10px; font-size:1.5rem; font-weight:700;" />
+            <span class="input-group-text fw-bold" style="border-radius:0 10px 10px 0; background:#f8fafc;">FCFA</span>
+          </div>
+          <div class="form-text">Disponible : <strong><%= parseFloat(balance).toLocaleString('fr-FR') %> FCFA</strong></div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Motif <span class="text-muted fw-normal">(optionnel)</span></label>
+          <input type="text" name="description" class="form-control" placeholder="Ex : Loyer, Courses, Facture…" maxlength="100" />
+        </div>
+
+        <!-- Montants rapides (selon le solde) -->
+        <div class="mb-4">
+          <p class="small text-muted mb-2">Montants rapides :</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <% [5000, 10000, 25000, 50000].forEach(v => { %>
+              <% if (v <= balance) { %>
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill"
+                        onclick="document.querySelector('[name=amount]').value=<%= v %>">
+                  <%= v.toLocaleString('fr-FR') %> F
+                </button>
+              <% } %>
+            <% }) %>
+            <button type="button" class="btn btn-sm btn-outline-warning rounded-pill"
+                    onclick="document.querySelector('[name=amount]').value=<%= balance %>">
+              Tout retirer
+            </button>
+          </div>
+        </div>
+
+        <% if (balance <= 0) { %>
+          <div class="alert alert-warning rounded-3 text-center">
+            <i class="bi bi-exclamation-triangle me-2"></i>Votre solde est insuffisant pour effectuer un retrait.
+          </div>
+        <% } else { %>
+          <button type="submit" class="btn btn-warning w-100 py-2 fw-semibold" style="border-radius:10px; font-size:1rem;">
+            <i class="bi bi-check-circle me-2"></i>Confirmer le retrait
+          </button>
+        <% } %>
+      </form>
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="/client/dashboard" class="text-muted small text-decoration-none">
+        <i class="bi bi-arrow-left me-1"></i>Retour au compte
+      </a>
+    </div>
+  </div>
+</div>

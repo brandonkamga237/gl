@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: neobank_db
+      POSTGRES_USER: neobank_user
+      POSTGRES_PASSWORD: neobank_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neobank_user -d neobank_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=neobank_db
+      - DB_USER=neobank_user
+      - DB_PASSWORD=neobank_pass
+      - JWT_SECRET=neobank_super_secret_change_me
+      - PORT=3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

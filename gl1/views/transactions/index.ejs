@@ -1,0 +1,49 @@
+<div class="chart-card">
+  <% if (transactions.length === 0) { %>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-arrow-left-right fs-1 d-block mb-2"></i>
+      Aucune transaction enregistrée
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Client</th>
+            <th>Opération</th>
+            <th>Montant</th>
+            <th>Solde avant</th>
+            <th>Solde après</th>
+            <th>Motif</th>
+            <th>Date & Heure</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% transactions.forEach(function(tx) { %>
+            <tr>
+              <td>
+                <% if (tx.user) { %>
+                  <span class="fw-semibold"><%= tx.user.name %></span>
+                  <br><small class="text-muted"><%= tx.user.email %></small>
+                <% } else { %>—<% } %>
+              </td>
+              <td>
+                <span class="badge <%= tx.type === 'deposit' ? 'bg-success' : 'bg-warning text-dark' %>">
+                  <i class="bi bi-<%= tx.type === 'deposit' ? 'arrow-down-circle' : 'arrow-up-circle' %> me-1"></i>
+                  <%= tx.type === 'deposit' ? 'Dépôt' : 'Retrait' %>
+                </span>
+              </td>
+              <td class="fw-bold <%= tx.type === 'deposit' ? 'text-success' : 'text-danger' %>">
+                <%= tx.type === 'deposit' ? '+' : '-' %><%= parseFloat(tx.amount).toLocaleString('fr-FR') %> FCFA
+              </td>
+              <td class="text-muted"><%= parseFloat(tx.balanceBefore).toLocaleString('fr-FR') %> FCFA</td>
+              <td class="fw-semibold"><%= parseFloat(tx.balanceAfter).toLocaleString('fr-FR') %> FCFA</td>
+              <td><small class="text-muted"><%= tx.description || '—' %></small></td>
+              <td><small><%= new Date(tx.createdAt).toLocaleString('fr-FR') %></small></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

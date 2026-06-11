@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== 'undefined' ? title + ' · Admin NeoBank' : 'Admin NeoBank' %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#060b14;--s:#0d1523;--card:#111d30;--border:#192540;--acc:#6366f1;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--text:#e8f0ff;--muted:#5a6e96}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;min-height:100vh}
+    a{text-decoration:none;color:inherit}
+
+    /* Sidebar */
+    .sidebar{width:220px;background:var(--s);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;bottom:0}
+    .sb-brand{padding:1.4rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+    .sb-brand .dot{width:7px;height:7px;background:var(--acc);border-radius:50%;box-shadow:0 0 6px var(--acc)}
+    .sb-brand span{font-weight:800;font-size:1rem}
+    .sb-brand small{color:var(--muted);font-size:.65rem;text-transform:uppercase;letter-spacing:1px;display:block}
+    .sb-nav{padding:.75rem .6rem;flex:1}
+    .sb-nav a{display:flex;align-items:center;gap:10px;padding:.6rem .8rem;border-radius:8px;font-size:.875rem;font-weight:500;color:var(--muted);margin-bottom:2px;transition:all .15s}
+    .sb-nav a:hover{background:var(--card);color:var(--text)}
+    .sb-nav a.active{background:rgba(99,102,241,.15);color:var(--acc)}
+    .sb-nav a i{width:18px;text-align:center}
+    .sb-footer{padding:1rem .6rem;border-top:1px solid var(--border)}
+    .sb-footer a{display:flex;align-items:center;gap:8px;padding:.5rem .8rem;border-radius:8px;font-size:.82rem;color:var(--muted);transition:all .15s}
+    .sb-footer a:hover{color:var(--red)}
+
+    /* Main */
+    .admin-main{margin-left:220px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+    .topbar{background:var(--s);border-bottom:1px solid var(--border);padding:.9rem 2rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+    .topbar h2{font-size:1rem;font-weight:600;color:var(--text)}
+    .topbar .admin-pill{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);border-radius:20px;padding:4px 12px 4px 8px;font-size:.8rem;color:var(--acc);display:flex;align-items:center;gap:6px}
+    .topbar .admin-pill .dot2{width:6px;height:6px;background:var(--acc);border-radius:50%}
+    .content{padding:2rem;flex:1}
+
+    /* Cards */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem}
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+    .kpi-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem}
+    .kpi-item .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem}
+    .kpi-item .value{font-size:1.5rem;font-weight:800;line-height:1}
+    .kpi-item .sub{font-size:.75rem;color:var(--muted);margin-top:.3rem}
+
+    /* Table */
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:collapse;font-size:.875rem}
+    th{text-align:left;padding:.7rem 1rem;border-bottom:1px solid var(--border);font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+    td{padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.03)}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    .badge{display:inline-block;border-radius:6px;padding:3px 8px;font-size:.75rem;font-weight:600}
+    .badge-green{background:rgba(16,185,129,.15);color:#6ee7b7}
+    .badge-red{background:rgba(239,68,68,.12);color:#fca5a5}
+    .badge-blue{background:rgba(99,102,241,.15);color:var(--acc)}
+    .badge-orange{background:rgba(245,158,11,.12);color:#fcd34d}
+    .btn-sm{display:inline-flex;align-items:center;gap:4px;border-radius:7px;padding:4px 10px;font-size:.78rem;font-weight:500;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+    .btn-toggle{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+    .btn-toggle:hover{background:rgba(99,102,241,.15);border-color:var(--acc);color:var(--acc)}
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div>
+      <div style="display:flex;align-items:center;gap:6px"><span class="dot"></span><span>NeoBank</span></div>
+      <small>Administration</small>
+    </div>
+  </div>
+  <% const pg = typeof title !== 'undefined' ? title : '' %>
+  <nav class="sb-nav">
+    <a href="/admin/dashboard" class="<%= pg==='Tableau de bord'?'active':'' %>">
+      <i class="bi bi-grid"></i>Tableau de bord
+    </a>
+    <a href="/admin/clients" class="<%= pg==='Clients'?'active':'' %>">
+      <i class="bi bi-people"></i>Clients
+    </a>
+  </nav>
+  <div class="sb-footer">
+    <a href="/logout"><i class="bi bi-box-arrow-left"></i>Déconnexion</a>
+  </div>
+</aside>
+
+<div class="admin-main">
+  <div class="topbar">
+    <h2><%= typeof title !== 'undefined' ? title : '' %></h2>
+    <% if (typeof admin !== 'undefined') { %>
+      <div class="admin-pill"><div class="dot2"></div><%= admin.email %></div>
+    <% } %>
+  </div>
+  <div class="content">
+    <%- body %>
+  </div>
+</div>
+</body>
+</html>

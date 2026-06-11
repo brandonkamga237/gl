@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== 'undefined' ? title + ' — BankApp' : 'BankApp' %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    :root { --primary: #2563eb; --primary-dark: #1d4ed8; }
+    body { background: #f8fafc; font-family: 'Segoe UI', sans-serif; }
+    .client-nav {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+      padding: 0;
+    }
+    .client-nav .navbar-brand {
+      color: #fff !important; font-weight: 700; font-size: 1.2rem;
+      display: flex; align-items: center; gap: 8px; padding: 0.9rem 1rem;
+    }
+    .client-nav .nav-link {
+      color: rgba(255,255,255,0.8) !important;
+      padding: 1rem 1.1rem !important;
+      font-size: 0.9rem;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .client-nav .nav-link:hover, .client-nav .nav-link.active {
+      color: #fff !important;
+      border-bottom-color: rgba(255,255,255,0.6);
+    }
+    .client-nav .nav-link i { margin-right: 5px; }
+    .page-wrapper { max-width: 960px; margin: 0 auto; padding: 2rem 1rem; }
+    .balance-card {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+      border-radius: 20px;
+      color: #fff;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .balance-card::after {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 150px; height: 150px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 50%;
+    }
+    .balance-card .balance-label { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+    .balance-card .balance-amount { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+    .balance-card .balance-currency { font-size: 1rem; opacity: 0.8; }
+    .action-btn {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.2rem;
+      text-decoration: none;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      transition: all 0.2s;
+    }
+    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(37,99,235,0.15); border-color: var(--primary); color: var(--primary); }
+    .action-btn .action-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    }
+    .card-section { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 1.5rem; }
+    .tx-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0.75rem 0; border-bottom: 1px solid #f1f5f9;
+    }
+    .tx-item:last-child { border-bottom: none; }
+    .tx-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    }
+    .alert-banner {
+      border-radius: 10px; padding: 0.75rem 1rem;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="client-nav navbar navbar-expand-md">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand" href="/client/dashboard">
+      <i class="bi bi-bank2"></i> BankApp
+    </a>
+    <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navClient">
+      <i class="bi bi-list text-white fs-4"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navClient">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link <%= typeof title !== 'undefined' && title === 'Mon Compte' ? 'active' : '' %>" href="/client/dashboard">
+            <i class="bi bi-house-fill"></i>Mon compte
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= typeof title !== 'undefined' && title === 'Effectuer un dépôt' ? 'active' : '' %>" href="/client/deposit">
+            <i class="bi bi-arrow-down-circle"></i>Dépôt
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= typeof title !== 'undefined' && title === 'Effectuer un retrait' ? 'active' : '' %>" href="/client/withdraw">
+            <i class="bi bi-arrow-up-circle"></i>Retrait
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= typeof title !== 'undefined' && title === 'Mes transactions' ? 'active' : '' %>" href="/client/transactions">
+            <i class="bi bi-clock-history"></i>Historique
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/client/logout" onclick="return confirm('Voulez-vous vous déconnecter ?')">
+            <i class="bi bi-box-arrow-right"></i>Déconnexion
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <%- body %>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

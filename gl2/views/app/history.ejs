@@ -1,0 +1,77 @@
+<div class="page-header">
+  <h1><i class="bi bi-clock-history" style="color:var(--text2);margin-right:.5rem"></i>Historique</h1>
+  <p>Toutes vos opérations</p>
+</div>
+
+<!-- Filtres -->
+<div style="display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap">
+  <button class="filter-btn active" data-filter="all">Toutes</button>
+  <button class="filter-btn" data-filter="deposit">Dépôts</button>
+  <button class="filter-btn" data-filter="withdraw">Retraits</button>
+  <button class="filter-btn" data-filter="transfer_out">Virements émis</button>
+  <button class="filter-btn" data-filter="transfer_in">Virements reçus</button>
+</div>
+
+<style>
+.filter-btn{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:6px 14px;font-size:.82rem;font-weight:500;color:var(--text2);
+  cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;
+}
+.filter-btn.active{background:rgba(99,102,241,.15);border-color:var(--accent);color:var(--accent2)}
+.filter-btn:hover:not(.active){border-color:var(--text3);color:var(--text)}
+</style>
+
+<% if (transactions.length === 0) { %>
+  <div class="card" style="text-align:center;padding:3rem">
+    <i class="bi bi-inbox" style="font-size:2.5rem;color:var(--text3);display:block;margin-bottom:.75rem"></i>
+    <div style="color:var(--text2);font-weight:500">Aucune opération</div>
+    <div style="color:var(--text3);font-size:.85rem;margin-top:.3rem">Votre historique apparaîtra ici</div>
+  </div>
+<% } else { %>
+  <div class="card" style="padding:0;overflow:hidden">
+    <% const icons = { deposit:'arrow-down-circle-fill', withdraw:'arrow-up-circle-fill', transfer_out:'send-fill', transfer_in:'send' };
+       const colors = { deposit:'var(--green)', withdraw:'var(--orange)', transfer_out:'var(--accent2)', transfer_in:'var(--green)' };
+       const labels = { deposit:'Dépôt', withdraw:'Retrait', transfer_out:'Virement émis', transfer_in:'Virement reçu' };
+       const bgs = { deposit:'rgba(16,185,129,.1)', withdraw:'rgba(245,158,11,.1)', transfer_out:'rgba(99,102,241,.1)', transfer_in:'rgba(16,185,129,.1)' };
+    %>
+    <% transactions.forEach((tx, i) => {
+      const isIn = tx.type === 'deposit' || tx.type === 'transfer_in';
+    %>
+      <div class="tx-item" data-type="<%= tx.type %>"
+        style="display:flex;align-items:center;gap:14px;padding:1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.03)">
+        <div style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:<%= bgs[tx.type] %>">
+          <i class="bi bi-<%= icons[tx.type] %>" style="color:<%= colors[tx.type] %>;font-size:1.1rem"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:500;font-size:.9rem"><%= labels[tx.type] %></div>
+          <div style="font-size:.75rem;color:var(--text3);margin-top:2px">
+            <%= new Date(tx.createdAt).toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) %>
+            <% if (tx.description) { %> · <%= tx.description %><% } %>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-weight:700;font-size:.95rem;color:<%= isIn?'var(--green)':'var(--orange)' %>">
+            <%= isIn?'+':'-' %><%= parseFloat(tx.amount).toLocaleString('fr-FR') %> FCFA
+          </div>
+          <div style="font-size:.72rem;color:var(--text3);margin-top:2px">
+            Solde : <%= parseFloat(tx.balanceAfter).toLocaleString('fr-FR') %> FCFA
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<script>
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const f = this.dataset.filter;
+    document.querySelectorAll('.tx-item').forEach(row => {
+      row.style.display = (f === 'all' || row.dataset.type === f) ? '' : 'none';
+    });
+  });
+});
+</script>

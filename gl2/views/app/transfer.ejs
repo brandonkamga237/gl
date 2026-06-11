@@ -1,0 +1,72 @@
+<div class="page-header">
+  <h1><i class="bi bi-send" style="color:var(--accent2);margin-right:.5rem"></i>Virement</h1>
+  <p>Transférez des fonds vers un autre compte NeoBank</p>
+</div>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert alert-error"><i class="bi bi-exclamation-triangle"></i><%= error %></div>
+<% } %>
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="alert alert-success"><i class="bi bi-check-circle"></i><%= success %></div>
+<% } %>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+
+  <div class="card">
+    <form method="POST" action="/app/transfer">
+      <div class="form-group">
+        <label class="form-label">Destinataire</label>
+        <div style="position:relative">
+          <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3)"></i>
+          <input type="text" name="to" class="form-input" style="padding-left:2.5rem"
+            placeholder="N° de compte ou email..." required
+            value="<%= typeof toValue !== 'undefined' ? toValue : '' %>" />
+        </div>
+        <div style="font-size:.75rem;color:var(--text3);margin-top:.35rem">
+          <i class="bi bi-info-circle"></i> Numéro de compte (10 chiffres) ou adresse email
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Montant</label>
+        <div class="input-suffix">
+          <input type="number" name="amount" class="form-input form-input-lg" placeholder="0" min="100" step="100" required />
+          <span>FCFA</span>
+        </div>
+        <div class="quick-amounts">
+          <span class="quick-chip" onclick="setAmt(5000)">5 000</span>
+          <span class="quick-chip" onclick="setAmt(10000)">10 000</span>
+          <span class="quick-chip" onclick="setAmt(25000)">25 000</span>
+          <span class="quick-chip" onclick="setAmt(50000)">50 000</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Motif <span style="font-weight:400;text-transform:none;letter-spacing:0">(optionnel)</span></label>
+        <input type="text" name="description" class="form-input" placeholder="Ex: remboursement loyer..." maxlength="120" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:.5rem">
+        <i class="bi bi-send"></i> Envoyer le virement
+      </button>
+    </form>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:1rem">
+      <div style="font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Solde disponible</div>
+      <div style="font-size:1.9rem;font-weight:800;color:var(--accent2)"><%= parseFloat(balance).toLocaleString('fr-FR') %></div>
+      <div style="font-size:.85rem;color:var(--text3);margin-top:.25rem">FCFA</div>
+      <div style="font-size:.78rem;color:var(--text3);margin-top:.75rem;display:flex;align-items:center;gap:6px">
+        <i class="bi bi-credit-card-2-front"></i> Votre N° : <strong style="color:var(--text2);font-size:.85rem"><%= profile.accountNumber %></strong>
+      </div>
+    </div>
+    <div class="card" style="background:rgba(99,102,241,.05);border-color:rgba(99,102,241,.15)">
+      <div style="font-size:.82rem;color:var(--text2);line-height:1.8">
+        <div style="font-weight:600;margin-bottom:.4rem;color:var(--accent2)"><i class="bi bi-shield-check"></i> Virement sécurisé</div>
+        Les virements entre comptes NeoBank sont instantanés et irréversibles. Vérifiez le destinataire avant de confirmer.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setAmt(v){document.querySelector('input[name="amount"]').value=v}
+</script>
