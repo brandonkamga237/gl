@@ -10,21 +10,21 @@ const Transaction = sequelize.define('Transaction', {
   userId: {
     type: DataTypes.UUID,
     allowNull: false,
-    references: {
-      model: 'users',
-      key: 'id',
-    },
+    references: { model: 'users', key: 'id' },
   },
   type: {
-    type: DataTypes.ENUM('deposit', 'withdraw'),
+    type: DataTypes.ENUM('deposit', 'withdraw', 'transfer_internal', 'transfer_external', 'transfer_received'),
     allowNull: false,
   },
   amount: {
     type: DataTypes.DECIMAL(15, 2),
     allowNull: false,
-    validate: {
-      min: 0.01,
-    },
+    validate: { min: 0.01 },
+  },
+  fees: {
+    type: DataTypes.DECIMAL(15, 2),
+    defaultValue: 0,
+    allowNull: false,
   },
   balanceBefore: {
     type: DataTypes.DECIMAL(15, 2),
@@ -36,6 +36,14 @@ const Transaction = sequelize.define('Transaction', {
   },
   description: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  recipientId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+  },
+  externalBank: {
+    type: DataTypes.STRING(100),
     allowNull: true,
   },
 }, {

@@ -6,10 +6,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --coverage --forceExit",
-    "test:unit": "jest tests/unit --coverage",
-    "test:integration": "jest tests/integration --coverage",
-    "test:report": "jest --coverage --reporters=default --reporters=jest-html-reporter",
+    "test": "vitest run --coverage",
+    "test:unit": "vitest run tests/unit --coverage",
+    "test:integration": "vitest run tests/integration --coverage",
+    "test:watch": "vitest",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed:all"
   },
@@ -26,25 +26,10 @@
     "sequelize": "^6.37.3"
   },
   "devDependencies": {
-    "jest": "^27.5.1",
-    "jest-html-reporter": "^3.10.2",
+    "@vitest/coverage-v8": "^1.6.0",
     "nodemon": "^2.0.22",
     "sequelize-cli": "^6.6.2",
-    "supertest": "^6.3.4"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/services/**/*.js",
-      "src/controllers/**/*.js",
-      "src/middlewares/**/*.js"
-    ],
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
-    ],
-    "testTimeout": 30000
+    "supertest": "^6.3.4",
+    "vitest": "^1.6.0"
   }
 }

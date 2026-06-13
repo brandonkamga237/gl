@@ -31,6 +31,14 @@ const validateTransaction = [
   handleValidationErrors,
 ];
 
+const validateTransfer = [
+  body('toIdentifier').notEmpty().withMessage('Destinataire requis (ID ou email)'),
+  body('amount').isFloat({ gt: 0 }).withMessage('Le montant doit être supérieur à 0'),
+  body('isExternal').optional().isBoolean().withMessage('isExternal doit être un booléen'),
+  body('description').optional().trim().isLength({ max: 255 }),
+  handleValidationErrors,
+];
+
 const validateLogin = [
   body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('password').notEmpty().withMessage('Password is required'),
@@ -48,6 +56,7 @@ module.exports = {
   validateCreateUser,
   validateUpdateUser,
   validateTransaction,
+  validateTransfer,
   validateLogin,
   validateRegister,
 };

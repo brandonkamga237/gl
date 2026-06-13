@@ -1,38 +1,54 @@
+vi.mock('../../src/services/userService', () => ({
+  createUser: null, getAllUsers: null, getUserById: null,
+  updateUser: null, deleteUser: null, login: null,
+  register: null, getBalance: null, createAccount: null,
+}));
+vi.mock('../../src/services/transactionService', () => ({
+  calculateFee: null, deposit: null, withdraw: null, transfer: null,
+  getAllTransactions: null, getTransactionsByUserId: null,
+  getStats: null, getDashboardStats: null,
+}));
+vi.mock('../../src/models', () => ({
+  User: {}, Transaction: {}, BankAccount: {},
+  syncDatabase: () => Promise.resolve(),
+}));
+vi.mock('../../src/config/database', () => ({
+  define: () => {}, sync: () => Promise.resolve(),
+}));
+vi.mock('../../src/models/BankAccount', () => ({
+  BANK_MASTER_ID: 'BANK-MASTER-001',
+}));
+vi.mock('jsonwebtoken', () => ({ verify: null, sign: null }));
+
 const request = require('supertest');
-
-jest.mock('../../src/services/userService');
-jest.mock('../../src/services/transactionService');
-jest.mock('../../src/models', () => ({
-  User: {},
-  Transaction: {},
-  syncDatabase: jest.fn().mockResolvedValue(true),
-}));
-jest.mock('../../src/config/database', () => ({
-  define: jest.fn(),
-  sync: jest.fn().mockResolvedValue(true),
-}));
-
 const app = require('../../src/app');
 const userService = require('../../src/services/userService');
-
-// Mock JWT middleware for protected routes
 const jwt = require('jsonwebtoken');
-jest.mock('jsonwebtoken');
 
-const adminToken = 'mock_admin_token';
+// Assign proper vi.fn() at module scope (normal execution context)
+jwt.verify = vi.fn();
+jwt.sign   = vi.fn();
+
+userService.createUser   = vi.fn();
+userService.getAllUsers   = vi.fn();
+userService.getUserById  = vi.fn();
+userService.updateUser   = vi.fn();
+userService.deleteUser   = vi.fn();
+userService.login        = vi.fn();
+
+const adminToken  = 'mock_admin_token';
 const clientToken = 'mock_client_token';
-
-const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
+const VALID_UUID  = '550e8400-e29b-41d4-a716-446655440000';
 
 beforeAll(() => {
   jwt.verify.mockImplementation((token) => {
-    if (token === adminToken) return { id: 'admin-id', email: 'admin@test.com', role: 'admin' };
-    if (token === clientToken) return { id: 'user-id', email: 'user@test.com', role: 'client' };
+    if (token === adminToken)  return { id: 'admin-id', email: 'admin@test.com',  role: 'admin'  };
+    if (token === clientToken) return { id: 'user-id',  email: 'user@test.com',   role: 'client' };
     throw new Error('invalid token');
   });
 });
 
-afterEach(() => jest.clearAllMocks());
+afterEach(() => vi.clearAllMocks());
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  POST /api/users
@@ -42,9 +58,7 @@ describe('POST /api/users', () => {
     userService.createUser.mockResolvedValue({ id: 'uuid-1', name: 'Bob', email: 'bob@test.com', role: 'client', balance: 0 });
 
     const res = await request(app).post('/api/users').send({
-      name: 'Bob',
-      email: 'bob@test.com',
-      password: 'Secret@123',
+      name: 'Bob', email: 'bob@test.com', password: 'Secret@123',
     });
 
     expect(res.status).toBe(201);
@@ -56,9 +70,7 @@ describe('POST /api/users', () => {
     userService.createUser.mockRejectedValue(new Error('EMAIL_ALREADY_EXISTS'));
 
     const res = await request(app).post('/api/users').send({
-      name: 'Bob',
-      email: 'existing@test.com',
-      password: 'Secret@123',
+      name: 'Bob', email: 'existing@test.com', password: 'Secret@123',
     });
 
     expect(res.status).toBe(409);
@@ -79,7 +91,7 @@ describe('GET /api/users', () => {
   test('200 — retourne la liste des utilisateurs (admin)', async () => {
     userService.getAllUsers.mockResolvedValue([
       { id: 'u1', name: 'Alice', email: 'alice@test.com' },
-      { id: 'u2', name: 'Bob', email: 'bob@test.com' },
+      { id: 'u2', name: 'Bob',   email: 'bob@test.com'   },
     ]);
 
     const res = await request(app)
@@ -110,7 +122,6 @@ describe('GET /api/users', () => {
 describe('GET /api/users/:id', () => {
   test('200 — retourne les détails d\'un utilisateur existant', async () => {
     userService.getUserById.mockResolvedValue({ id: VALID_UUID, name: 'Alice', email: 'alice@test.com' });
-
     const res = await request(app).get(`/api/users/${VALID_UUID}`);
     expect(res.status).toBe(200);
     expect(res.body.data.id).toBe(VALID_UUID);
@@ -177,13 +188,12 @@ describe('DELETE /api/users/:id', () => {
 describe('POST /api/auth/login', () => {
   test('200 — retourne token et données utilisateur', async () => {
     userService.login.mockResolvedValue({
-      user: { id: 'uuid-1', email: 'alice@test.com', role: 'client' },
+      user:  { id: 'uuid-1', email: 'alice@test.com', role: 'client' },
       token: 'jwt_token',
     });
 
     const res = await request(app).post('/api/auth/login').send({
-      email: 'alice@test.com',
-      password: 'correct_password',
+      email: 'alice@test.com', password: 'correct_password',
     });
 
     expect(res.status).toBe(200);
@@ -194,8 +204,7 @@ describe('POST /api/auth/login', () => {
     userService.login.mockRejectedValue(new Error('INVALID_CREDENTIALS'));
 
     const res = await request(app).post('/api/auth/login').send({
-      email: 'alice@test.com',
-      password: 'wrong_password',
+      email: 'alice@test.com', password: 'wrong_password',
     });
 
     expect(res.status).toBe(401);

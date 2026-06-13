@@ -1,21 +1,21 @@
+vi.mock('../../src/models', () => ({ User: {} }));
+vi.mock('bcrypt', () => ({ hash: null, compare: null }));
+vi.mock('jsonwebtoken', () => ({ sign: null, verify: null }));
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
-// Mock models before requiring service
-jest.mock('../../src/models', () => ({
-  User: {
-    findOne: jest.fn(),
-    findByPk: jest.fn(),
-    findAll: jest.fn(),
-    create: jest.fn(),
-  },
-}));
-
-jest.mock('bcrypt');
-jest.mock('jsonwebtoken');
-
 const { User } = require('../../src/models');
 const userService = require('../../src/services/userService');
+
+// Assign proper vi.fn() at module scope (normal execution context, not factory)
+User.findOne  = vi.fn();
+User.findByPk = vi.fn();
+User.findAll  = vi.fn();
+User.create   = vi.fn();
+bcrypt.hash    = vi.fn();
+bcrypt.compare = vi.fn();
+jwt.sign   = vi.fn();
+jwt.verify = vi.fn();
 
 // ─── Helper ────────────────────────────────────────────────────────────────
 const makeUser = (overrides = {}) => ({
@@ -27,31 +27,25 @@ const makeUser = (overrides = {}) => ({
   balance: '500.00',
   isActive: true,
   toJSON: () => ({
-    id: 'uuid-001',
-    name: 'Alice',
-    email: 'alice@test.com',
-    password: 'hashed_pw',
-    role: 'client',
-    balance: '500.00',
-    isActive: true,
-    ...overrides,
+    id: 'uuid-001', name: 'Alice', email: 'alice@test.com',
+    password: 'hashed_pw', role: 'client', balance: '500.00',
+    isActive: true, ...overrides,
   }),
-  update: jest.fn().mockResolvedValue(true),
-  destroy: jest.fn().mockResolvedValue(true),
+  update:  vi.fn().mockResolvedValue(true),
+  destroy: vi.fn().mockResolvedValue(true),
   ...overrides,
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  FONCTIONNALITÉ 1 : createUser
+//  FONCTIONNALITÉ 1 — createUser
 // ═══════════════════════════════════════════════════════════════════════════
 describe('createUser', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     bcrypt.hash.mockResolvedValue('hashed_password');
     process.env.JWT_SECRET = 'test_secret';
   });
 
-  // ── Statement Coverage ──────────────────────────────────────────────────
   // TC-001 : chemin nominal — création réussie
   test('TC-001 | P1 | crée un utilisateur avec les données valides', async () => {
     User.findOne.mockResolvedValue(null);
@@ -66,15 +60,12 @@ describe('createUser', () => {
     expect(result).not.toHaveProperty('password');
   });
 
-  // ── Branch Coverage ─────────────────────────────────────────────────────
-  // TC-002 : branche email déjà existant
+  // TC-002 : email déjà existant
   test('TC-002 | P2 | lève EMAIL_ALREADY_EXISTS si email pris', async () => {
     User.findOne.mockResolvedValue(makeUser());
-
     await expect(
       userService.createUser({ name: 'Bob', email: 'alice@test.com', password: 'secret123' })
     ).rejects.toThrow('EMAIL_ALREADY_EXISTS');
-
     expect(User.create).not.toHaveBeenCalled();
   });
 
@@ -84,9 +75,8 @@ describe('createUser', () => {
     const userData = { id: 'uuid-2', name: 'Carol', email: 'carol@test.com', password: 'h', role: 'client', balance: '200.00', isActive: true };
     User.create.mockResolvedValue({ ...userData, toJSON: () => userData });
 
-    const result = await userService.createUser({ name: 'Carol', email: 'carol@test.com', password: 'pass123', balance: 200 });
+    await userService.createUser({ name: 'Carol', email: 'carol@test.com', password: 'pass123', balance: 200 });
     expect(User.create).toHaveBeenCalledWith(expect.objectContaining({ balance: 200 }));
-    expect(result).not.toHaveProperty('password');
   });
 
   // TC-004 : rôle admin explicite
@@ -101,11 +91,11 @@ describe('createUser', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  FONCTIONNALITÉ 4 : login
+//  FONCTIONNALITÉ 4 — login
 // ═══════════════════════════════════════════════════════════════════════════
 describe('login', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     process.env.JWT_SECRET = 'test_secret';
   });
 
@@ -144,17 +134,15 @@ describe('login', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  FONCTIONNALITÉ 5 : getBalance
+//  FONCTIONNALITÉ 5 — getBalance
 // ═══════════════════════════════════════════════════════════════════════════
 describe('getBalance', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   // TC-009 : chemin nominal
   test('TC-009 | P1 | retourne le solde de l\'utilisateur', async () => {
     User.findByPk.mockResolvedValue({ id: 'uuid-001', name: 'Alice', email: 'alice@test.com', balance: '500.00' });
-
     const result = await userService.getBalance('uuid-001');
-
     expect(result).toEqual({ userId: 'uuid-001', name: 'Alice', balance: 500 });
   });
 

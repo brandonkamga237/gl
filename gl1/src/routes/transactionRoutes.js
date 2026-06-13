@@ -2,11 +2,19 @@ const express = require('express');
 const router = express.Router();
 const transactionController = require('../controllers/transactionController');
 const { verifyToken, requireAdmin } = require('../middlewares/authMiddleware');
-const { validateTransaction } = require('../middlewares/validationMiddleware');
+const { validateTransaction, validateTransfer } = require('../middlewares/validationMiddleware');
 
-router.post('/deposit', verifyToken, validateTransaction, transactionController.deposit);
+// Dépôt : réservé à l'admin (seul l'admin alimente les comptes)
+router.post('/deposit', requireAdmin, validateTransaction, transactionController.deposit);
+
+// Retrait : n'importe quel utilisateur authentifié
 router.post('/withdraw', verifyToken, validateTransaction, transactionController.withdraw);
-router.get('/', requireAdmin, transactionController.getAllTransactions);
-router.get('/:userId', verifyToken, transactionController.getTransactionsByUserId);
+
+// Virement : n'importe quel utilisateur authentifié
+router.post('/transfer', verifyToken, validateTransfer, transactionController.transfer);
+
+// Historique global (admin) et par utilisateur
+router.get('/',         requireAdmin, transactionController.getAllTransactions);
+router.get('/:userId',  verifyToken,  transactionController.getTransactionsByUserId);
 
 module.exports = router;
