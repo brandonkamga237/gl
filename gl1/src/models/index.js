@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const sequelize = require('../config/database');
 const User = require('./User');
 const Transaction = require('./Transaction');
@@ -19,6 +20,23 @@ const syncDatabase = async () => {
       totalDeposited: 0,
       totalWithdrawn: 0,
     });
+  }
+
+  // Seed default admin if not present
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@banking.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@1234';
+  const existing = await User.findOne({ where: { email: adminEmail } });
+  if (!existing) {
+    const hashed = await bcrypt.hash(adminPassword, 10);
+    await User.create({
+      name: 'Administrateur',
+      email: adminEmail,
+      password: hashed,
+      role: 'admin',
+      balance: 0,
+      isActive: true,
+    });
+    console.log(`Admin créé : ${adminEmail} / ${adminPassword}`);
   }
 };
 
